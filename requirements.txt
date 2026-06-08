@@ -6,3 +6,4 @@ bcrypt
 python-dotenv
 itsdangerous
 websockets
+python-multipart
