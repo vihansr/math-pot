@@ -125,9 +125,16 @@ def update_score(user_id: int, score: int) -> bool:
 
 def leaderboard():
     """Retrieves the top 5 players based on their total score."""
-    with conn.cursor() as cur:
-        cur.execute("select user_id, user_score from math_user order by user_score desc")
-        score = cur.fetchall()
-        # Format and limit results to top 5
-        values = [[u_id, score] for [u_id,score] in score][:5]
-        return values
+    if conn is None:
+        print("Database connection is not established.")
+        return []
+    try:
+        with conn.cursor() as cur:
+            cur.execute("select user_id, user_score from math_user order by user_score desc")
+            rows = cur.fetchall()
+            # Format and limit results to top 5
+            values = [[u_id, u_score] for [u_id, u_score] in rows][:5]
+            return values
+    except Exception as e:
+        print(f"Error fetching leaderboard: {e}")
+        return []

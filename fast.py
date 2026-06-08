@@ -254,8 +254,8 @@ async def webs(websocket: WebSocket):
                         winners = []
                         
                         # Calculate and format final scores
-                        for i, conn in enumerate(room.players):
-                            score = room.scores.get(conn, 0)
+                        for i, player_ws in enumerate(room.players):
+                            score = room.scores.get(player_ws, 0)
                             res.append(f"Player {i+1}: {score} points")
                             
                             if score > highest_score:
@@ -265,7 +265,7 @@ async def webs(websocket: WebSocket):
                                 winners.append(f"Player {i+1}")
                                 
                             # Database Update
-                            player_id = conn.session.get("player_id")
+                            player_id = player_ws.session.get("player_id")
                             if player_id is not None:
                                 update_score(player_id, 15)
 
@@ -327,8 +327,8 @@ async def webs(websocket: WebSocket):
                         pass
                 
             # Remove room mappings
-            for p in room.players:
-                if p in websocket_to_room:
-                    del websocket_to_room[p]
+            for player_ws in room.players:
+                if player_ws in websocket_to_room:
+                    del websocket_to_room[player_ws]
             if room_id in rooms:
                 del rooms[room_id]
