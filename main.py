@@ -240,10 +240,21 @@ async def webs(websocket: WebSocket):
 
                     # Notify players of round outcome
                     for c in room.players:
+                        c_num = room.players.index(c) + 1
+                        opp = [p for p in room.players if p != c][0]
                         if c == websocket:
                             await c.send_text(f"Player {player_num} has won.")
                         else:
                             await c.send_text(f"Player {player_num} has won. You came second!")
+                        
+                        # Send score update to each player
+                        await c.send_json({
+                            "type": "score_update",
+                            "your_score": room.scores[c],
+                            "opp_score": room.scores[opp],
+                            "question": room.ques,
+                            "total_questions": 5
+                        })
 
                     # End of game condition (5 questions)
                     if room.ques >= 5:

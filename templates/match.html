@@ -36,13 +36,26 @@
             <input type="hidden" name="m_id" id="i-m-id" value="{{id}}">
         </form>
 
-        <!-- Live Score -->
-        {% if score is not none %}
-            <div class="score-container">
-                <span class="score-label">Score</span>
-                <span class="score-val" id="score-val">{{score}}</span>
+        <!-- Live Scoreboard -->
+        <div class="score-container">
+            <div class="score-row">
+                <span class="score-label">You</span>
+                <span class="score-val" id="your-score">0</span>
             </div>
-        {% endif %}
+            <div class="score-divider">vs</div>
+            <div class="score-row">
+                <span class="score-label">Opponent</span>
+                <span class="score-val" id="opp-score">0</span>
+            </div>
+        </div>
+        
+        <!-- Question Tracker -->
+        <div class="question-tracker">
+            <span>Question</span>
+            <span id="q-current">0</span>
+            <span>/</span>
+            <span id="q-total">5</span>
+        </div>
         
         <!-- Home Button (Hidden initially) -->
         <a id="home-btn" href="/" style="display: none; text-decoration: none; margin-top: 15px; width: 100%;">
@@ -70,9 +83,22 @@
         // Handle incoming messages from the server
         ws.onmessage = function(event) {
             
-            // 1. Try parsing message as JSON (New Equation Payload)
+            // 1. Try parsing message as JSON (Equation or Score Update)
             try {
                 const payload = JSON.parse(event.data);
+                
+                // Score update from server
+                if (payload && payload.type === "score_update") {
+                    document.getElementById("your-score").textContent = payload.your_score;
+                    document.getElementById("opp-score").textContent = payload.opp_score;
+                    // Show next question number (completed + 1), capped at total
+                    const nextQ = Math.min(payload.question + 1, payload.total_questions);
+                    document.getElementById("q-current").textContent = nextQ;
+                    document.getElementById("q-total").textContent = payload.total_questions;
+                    return;
+                }
+                
+                // New equation payload
                 if (payload && "m-id" in payload) {
                     // Update equation
                     mInput.value = payload['m-id'];
@@ -109,6 +135,7 @@
             if (msg.includes("Starting match")) {
                 statusMsg.textContent = "Both players joined, starting match...";
                 statusMsg.className = "status-box";
+                document.getElementById("q-current").textContent = "1";
             }
             
             // Round winner / loser announcements
