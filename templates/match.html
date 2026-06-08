@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Pot - Match</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Waiting for players / Loading Overlay -->
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <h1 class="loading-text">Waiting Room</h1>
+        <p id="lobby-status" class="loading-subtext">Connecting to Server...</p>
+    </div>
+
+    <!-- Main Game Container -->
+    <main class="game-container">
+        
+        <!-- Game Info Status -->
+        <div id="player-status" class="status-box">Waiting for match to start...</div>
+        
+        <!-- Equation Form -->
+        <form class="math-form" onsubmit="sendMessage(event)">
+            <div class="equation-row">
+                <label for="num-sum" class="equation-label">
+                    <span class="number" id="a">{{a}}</span>
+                    <span class="operator">+</span>
+                    <span class="number" id="b">{{b}}</span>
+                    <span class="equals">=</span>
+                </label>
+                <input type="number" name="num-sum" id="num-sum" class="sum-input" autofocus autocomplete="off" required>
+            </div>
+            <input type="hidden" name="m_id" id="i-m-id" value="{{id}}">
+        </form>
+
+        <!-- Live Score -->
+        {% if score is not none %}
+            <div class="score-container">
+                <span class="score-label">Score</span>
+                <span class="score-val" id="score-val">{{score}}</span>
+            </div>
+        {% endif %}
+        
+        <!-- Home Button (Hidden initially) -->
+        <a id="home-btn" href="/" style="display: none; text-decoration: none; margin-top: 15px; width: 100%;">
+            <button type="button" class="btn-secondary" style="width: 100%;">Back to Home</button>
+        </a>
+
+    </main>
+
+    <!-- WebSocket Game Logic -->
+    <script>
+        // Establish WebSocket Connection
+        const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+        const ws = new WebSocket(protocol + window.location.host + "/ws");
+        
+        // DOM Elements
+        const loader = document.getElementById("loading-screen");
+        const statusMsg = document.getElementById("player-status");
+        const lobbyStatus = document.getElementById("lobby-status");
+        const form = document.querySelector(".math-form");
+        const homeBtn = document.getElementById("home-btn");
+        const placeA = document.getElementById("a");
+        const placeB = document.getElementById("b");
+        const mInput = document.getElementById("i-m-id");
+        
+        // Handle incoming messages from the server
+        ws.onmessage = function(event) {
+            
+            // 1. Try parsing message as JSON (New Equation Payload)
+            try {
+                const payload = JSON.parse(event.data);
+                if (payload && "m-id" in payload) {
+                    // Update equation
+                    mInput.value = payload['m-id'];
+                    placeA.textContent = payload.a;
+                    placeB.textContent = payload.b;
+                    
+                    // Clear status text and hide loader
+                    statusMsg.textContent = "";
+                    statusMsg.className = "status-box";
+                    loader.classList.add("hidden");
+                    
+                    // Re-focus the input
+                    const sumInput = document.getElementById("num-sum");
+                    if (sumInput) {
+                        sumInput.value = "";
+                        sumInput.focus();
+                    }
+                    return; // Exit early, handled as JSON
+                }
+            } catch (e) {
+                // Not JSON, fall through to text handling
+            }
+
+            // 2. Handle Text Status Messages
+            const msg = event.data;
+
+            // Lobby & Waiting states
+            if (msg.includes("Waiting") || msg.includes("Player in the room") || msg.includes("Opponent left")) {
+                if (lobbyStatus) lobbyStatus.textContent = msg;
+                loader.classList.remove("hidden");
+            }
+            
+            // Match starting
+            if (msg.includes("Starting match")) {
+                statusMsg.textContent = "Both players joined, starting match...";
+                statusMsg.className = "status-box";
+            }
+            
+            // Round winner / loser announcements
+            if (msg.includes("won") || msg.includes("second") || msg.includes("Wrong")) {
+                statusMsg.textContent = msg;
+                
+                // Set appropriate classes
+                statusMsg.className = "status-box";
+                if (msg.includes("won")) {
+                    statusMsg.classList.add("status-success");
+                } else if (msg.includes("Wrong")) {
+                    statusMsg.classList.add("status-error");
+                }
+            }
+
+            // Game Over state
+            if (msg.includes("Game over") || msg.includes("Final Scores")) {
+                statusMsg.innerHTML = msg.replace(/\|/g, "<br>"); // Format multi-line
+                statusMsg.className = "status-box status-final";
+                
+                if (form) form.style.display = "none";
+                if (homeBtn) homeBtn.style.display = "block"; // Show return to home
+            }
+        };
+
+        // Handle Form Submission
+        function sendMessage(event) {
+            if (event) event.preventDefault();
+            
+            const sumInput = document.getElementById("num-sum");
+            const sumID = document.getElementById("i-m-id");
+
+            if (!sumInput.value.trim()) return;
+
+            // Send answer to server
+            const payload = {
+                "sum": sumInput.value,
+                "mID": sumID.value
+            };
+            ws.send(JSON.stringify(payload));
+            
+            // Clear input for next question
+            sumInput.value = "";
+        }
+    </script>
+</body>
+</html>

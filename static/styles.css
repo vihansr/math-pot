@@ -1,0 +1,488 @@
+/* =========================================
+   Minimalist & Sharp Monochrome Theme
+   ========================================= */
+
+:root {
+    --bg-color: #ffffff;
+    --text-primary: #000000;
+    --text-muted: #666666;
+    --border-color: #000000;
+    --border-light: #e5e5e5;
+    --accent-bg: #f9f9f9;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+    --radius: 0px; /* Sharp corners */
+}
+
+/* Reset & Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0;
+    line-height: 1.5;
+}
+
+/* Base Headings & Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+/* =========================================
+   Structured Layout Elements
+   ========================================= */
+.game-container, .leaderboard-card {
+    width: 100%;
+    padding: 30px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.game-container {
+    max-width: 440px;
+    margin: 20px;
+}
+
+/* Home Page Layout */
+.home-layout {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 40px 20px 40px;
+}
+
+.top-header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 80px;
+    width: 100%;
+}
+
+.brand-title {
+    font-family: 'Comfortaa', var(--font-sans);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #d48a12; /* Honey colored */
+    text-transform: lowercase; /* Comfortaa looks beautiful in lowercase */
+}
+
+.header-right {
+    position: absolute;
+    right: 0;
+    top: 5px;
+}
+
+.main-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+    width: 100%;
+}
+
+.leaderboard-card {
+    justify-self: end;
+    width: 100%;
+    max-width: 360px;
+    margin-left: auto; /* Push to the end of Column 3 */
+}
+
+@media (max-width: 768px) {
+    .main-content-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    .leaderboard-card {
+        justify-self: center;
+        max-width: 100%;
+    }
+    .top-header {
+        margin-bottom: 30px;
+    }
+    .left-spacer {
+        display: none;
+    }
+}
+
+.welcome-message {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: -50px;
+    margin-bottom: 40px;
+}
+
+.center-play-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+/* =========================================
+   Forms & Controls
+   ========================================= */
+.math-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.equation-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    background-color: var(--accent-bg);
+}
+
+.equation-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+}
+
+.operator, .equals {
+    color: var(--text-primary);
+}
+
+/* Input Styling */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    appearance: none;
+    margin: 0; 
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.sum-input {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    width: 120px;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    background: transparent;
+    padding: 2px;
+    color: var(--text-primary);
+    text-align: center;
+    outline: none;
+}
+
+.sum-input:focus {
+    border-bottom-width: 4px;
+    background-color: #ffffff;
+}
+
+/* Buttons (Sharp Monochrome Interactivity) */
+button, .btn {
+    display: inline-block;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 12px 24px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background-color 0.1s, color 0.1s;
+    text-decoration: none;
+    text-align: center;
+    border-radius: var(--radius);
+}
+
+button:hover, .btn:hover {
+    background-color: var(--text-primary);
+    color: var(--bg-color);
+}
+
+button:active, .btn:active {
+    background-color: var(--text-muted);
+    color: var(--bg-color);
+}
+
+/* Secondary/Alternative Button */
+.btn-secondary {
+    background-color: var(--text-primary);
+    color: var(--bg-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+}
+
+/* =========================================
+   Lobby & Leaderboard
+   ========================================= */
+.leaderboard-card {
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--accent-bg);
+}
+
+.leaderboard-card h2 {
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.leaderboard-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+}
+
+.leaderboard-item:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-item .rank {
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-right: 8px;
+}
+
+.leaderboard-item .points {
+    font-weight: 700;
+}
+
+/* =========================================
+   Status & Score Displays
+   ========================================= */
+.score-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--accent-bg);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+}
+
+.score-label {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+.score-val {
+    font-weight: 700;
+}
+
+/* Game Status Box */
+.status-box {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    text-align: center;
+    line-height: 1.5;
+    background-color: var(--bg-color);
+}
+
+.status-success {
+    background-color: #f0fff0;
+    border-color: #008000;
+    color: #008000;
+}
+
+.status-error {
+    background-color: #fff0f0;
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+.status-final {
+    background-color: var(--text-primary);
+    color: var(--bg-color);
+    border-color: var(--text-primary);
+}
+
+/* =========================================
+   Waiting / Loading Overlay
+   ========================================= */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* B&W Spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border-light);
+    border-top-color: var(--border-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: bold;
+}
+
+.loading-subtext {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 10px;
+}
+
+/* =========================================
+   Authentication Dialog / Modal
+   ========================================= */
+dialog {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    padding: 30px;
+    width: 90%;
+    max-width: 380px;
+    margin: auto;
+    border-radius: var(--radius);
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+dialog h1 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.dialog-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.dialog-tabs button {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 10px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.dialog-tabs button.active {
+    font-weight: bold;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+    background-color: var(--accent-bg);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.auth-form label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+.auth-form input {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.auth-form input:focus {
+    background-color: var(--accent-bg);
+}
+
+.auth-form button {
+    margin-top: 10px;
+    width: 100%;
+}

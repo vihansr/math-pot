@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Pot</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="home-layout">
+        <!-- Top Header -->
+        <header class="top-header">
+            <h1 class="brand-title">Math Pot</h1>
+            <div class="header-right">
+                {% if auth %}
+                    <form action="/test-auth" method="post">
+                        <button type="submit" class="btn">Logout</button>
+                    </form>
+                {% endif %}
+            </div>
+        </header>
+
+        {% if auth %}
+            <p class="welcome-message">Welcome back, User {{ player_id }}</p>
+        {% endif %}
+
+        <!-- Main Layout Grid -->
+        <div class="main-content-grid">
+            <!-- Left spacer to keep center balanced on large screens -->
+            <div class="left-spacer"></div>
+
+            <!-- Center Play Section -->
+            <section class="center-play-section">
+                <form action="/start" method="post">
+                    <button type="submit" class="btn-secondary" style="font-size: 1.3rem; padding: 15px 45px;">Start Match</button>
+                </form>
+
+                {% if request.session["game_over"] %}
+                    <div class="score-container" style="justify-content: center; gap: 10px; width: 100%;">
+                        <span class="score-label">Previous Score:</span>
+                        <span class="score-val">{{request.session["score"]}}</span>
+                    </div>
+                {% endif %}
+            </section>
+
+            <!-- Right Leaderboard Section -->
+            <section class="leaderboard-card">
+                <h2>Leaderboard</h2>
+                <ul class="leaderboard-list">
+                    {% for i in leaderboard %}
+                        <li class="leaderboard-item">
+                            <span><span class="rank">#{{loop.index}}</span> User {{i[0]}}</span>
+                            <span class="points">{{i[1]}} pts</span>
+                        </li>
+                    {% else %}
+                        <li class="leaderboard-item" style="justify-content: center; color: var(--text-muted);">No scores yet</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+
+        <!-- Hidden Authentication Trigger -->
+        {% if not auth %}
+            <button hidden id="openPopup">Open Popup</button>
+        {% endif %}
+    </div>
+
+    <!-- Authentication Dialog -->
+    <dialog id="myPopup">
+        <!-- Error Alerts -->
+        {% if auth_error %}
+            <div class="status-box status-error" style="margin-bottom: 15px; font-size: 0.85rem; padding: 10px;">
+                {{ auth_error }}
+            </div>
+        {% endif %}
+
+        <!-- Tabs for Login / Register -->
+        <div class="dialog-tabs">
+            <button id="showLogin" class="active">Login</button>
+            <button id="showRegister">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form" method="post" action="/login">
+            <h1>Welcome Back</h1>
+            <label for="login_user_id">User ID</label>
+            <input type="number" name="user_id" id="login_user_id" min="10000" max="99999" placeholder="e.g. 12345" required>
+
+            <label for="login_user_pass">Password</label>
+            <input type="password" name="user_pass" id="login_user_pass" placeholder="••••••••" required>
+            
+            <button type="submit" class="btn-secondary">Sign In</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="auth-form" action="/register" method="post" hidden>
+            <h1>Create Account</h1>
+            <label for="reg_user_id">Create User ID (5 digits)</label>
+            <input type="number" name="user_id" id="reg_user_id" min="10000" max="99999" placeholder="e.g. 12345" required>
+
+            <label for="reg_user_pass">Create Password</label>
+            <input type="password" name="user_pass" id="reg_user_pass" placeholder="••••••••" required>
+            
+            <button type="submit" class="btn-secondary">Sign Up</button>
+        </form>
+    </dialog>
+
+    <script>
+        // DOM Elements
+        const popup = document.getElementById('myPopup');
+        const openBtn = document.getElementById('openPopup');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const regBtn = document.getElementById('showRegister');
+        const logBtn = document.getElementById('showLogin');
+
+        // Automatically open the authentication popup if user is not logged in
+        if (openBtn) {
+            popup.showModal();
+        }
+
+        // Set initial active tab based on server side redirect
+        const initialTab = "{{ auth_tab }}";
+        if (initialTab === "register") {
+            loginForm.hidden = true;
+            registerForm.hidden = false;
+            regBtn.classList.add('active');
+            logBtn.classList.remove('active');
+        } else {
+            registerForm.hidden = true;
+            loginForm.hidden = false;
+            logBtn.classList.add('active');
+            regBtn.classList.remove('active');
+        }
+
+        // Tab switching logic: Register
+        regBtn.addEventListener('click', () => {
+            loginForm.hidden = true;
+            registerForm.hidden = false;
+            regBtn.classList.add('active');
+            logBtn.classList.remove('active');
+        });
+
+        // Tab switching logic: Login
+        logBtn.addEventListener('click', () => {
+            registerForm.hidden = true;
+            loginForm.hidden = false;
+            logBtn.classList.add('active');
+            regBtn.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
