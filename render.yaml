@@ -3,7 +3,7 @@ services:
     name: math-pot
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn fast:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DB_CONNECTOR
         sync: false
