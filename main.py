@@ -253,11 +253,11 @@ async def webs(websocket: WebSocket):
                             "your_score": room.scores[c],
                             "opp_score": room.scores[opp],
                             "question": room.ques,
-                            "total_questions": 5
+                            "total_questions": 15
                         })
 
-                    # End of game condition (5 questions)
-                    if room.ques >= 5:
+                    # End of game condition (15 questions)
+                    if room.ques >= 15:
                         room.game_over = True
                         res = ["Game over! Final Scores:"]
                         
