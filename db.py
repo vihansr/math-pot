@@ -11,15 +11,23 @@ conn = None
 
 # Establish the database connection on startup
 try:
-    db_str = os.getenv("DB_CONNECTOR")
+    db_str = os.getenv("POSTGRES_URL")
     if not db_str:
-        raise ValueError("DB_CONNECTOR environment variable is missing from the configuration.")
+        raise ValueError("POSTGRES_URL environment variable is missing from the configuration.")
     
-    # Clean leading/trailing spaces or quotes that users might have pasted in Render
+    # Clean leading/trailing spaces or quotes that users might have pasted
     db_str = db_str.strip().strip("'\"")
     
+    # Remove Supabase-specific tracking params that psycopg2 doesn't understand
+    from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+    parsed_url = urlparse(db_str)
+    params = parse_qs(parsed_url.query)
+    params.pop("supa", None)        # Remove &supa=base-pooler.x
+    params.pop("pgbouncer", None)   # Remove &pgbouncer=true (not a Postgres param)
+    clean_query = urlencode(params, doseq=True)
+    db_str = urlunparse(parsed_url._replace(query=clean_query))
+    
     # Securely parse and print details for diagnostic logs
-    from urllib.parse import urlparse
     parsed = urlparse(db_str)
     print(f"Attempting to connect to database: host={parsed.hostname}, port={parsed.port}, dbname={parsed.path.lstrip('/')}, user={parsed.username}")
     
