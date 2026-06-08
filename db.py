@@ -14,10 +14,22 @@ try:
     db_str = os.getenv("DB_CONNECTOR")
     if not db_str:
         raise ValueError("DB_CONNECTOR environment variable is missing from the configuration.")
+    
+    # Clean leading/trailing spaces or quotes that users might have pasted in Render
+    db_str = db_str.strip().strip("'\"")
+    
+    # Securely parse and print details for diagnostic logs
+    from urllib.parse import urlparse
+    parsed = urlparse(db_str)
+    print(f"Attempting to connect to database: host={parsed.hostname}, port={parsed.port}, dbname={parsed.path.lstrip('/')}, user={parsed.username}")
+    
     conn = psycopg2.connect(db_str)
     conn.autocommit = True
+    print("Database connection successfully established.")
 except Exception as e:
+    import traceback
     print(f"Database connection failed: {e}")
+    traceback.print_exc()
 
 def check_user_id(user_id: int) -> bool:
     """Checks if a given user ID already exists in the database."""
