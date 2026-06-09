@@ -1,0 +1,103 @@
+# Math-Pot: Real-Time Multiplayer Math Arena
+
+Math-Pot is a fast-paced, real-time multiplayer web application where users compete head-to-head in mathematical problem-solving. Built with Python and FastAPI, the platform pairs players in live sessions via WebSockets, testing their speed and accuracy in basic arithmetic. The application includes secure user authentication, persistent scoring, and a global leaderboard.
+
+## Key Features
+
+*   **Real-Time Matchmaking:** An active matchmaking queue pairs available players into unique WebSocket-driven game rooms.
+*   **Live Multiplayer Gameplay:** Players race to solve 15 randomly generated math equations per match. Scores and round winners are broadcasted instantaneously to connected clients.
+*   **Secure Authentication:** User registration and login utilizing `bcrypt` password hashing and secure session management.
+*   **Persistent Leaderboard:** A global leaderboard tracks the top 5 players based on their cumulative lifetime scores, managed via a PostgreSQL database.
+*   **Concurrency Handling:** Robust server-side state management ensures race conditions are mitigated when players submit answers simultaneously.
+
+## Technology Stack
+
+*   **Backend Framework:** FastAPI (Python)
+*   **Real-Time Communication:** WebSockets
+*   **Database:** PostgreSQL (accessed via `psycopg2`)
+*   **Authentication & Security:** `bcrypt`, Starlette Session Middleware
+*   **Frontend:** HTML5, CSS3, JavaScript (rendered via Jinja2 Templates)
+*   **Deployment:** Render
+
+## Project Architecture
+
+The application is structured to decouple the HTTP request handling from the real-time WebSocket game loop:
+
+*   `main.py`: The entry point of the application. It handles HTTP routing, session management, template rendering, and the core WebSocket matchmaking and game state logic (`GameRoom` class).
+*   `db.py`: The data access layer. It manages the PostgreSQL connection pool, executes raw SQL queries for authentication, score updates, and leaderboard retrieval, and handles password hashing.
+*   `templates/` & `static/`: Contains the frontend UI components and styles.
+
+## Database Schema
+
+The application requires a PostgreSQL database with the following primary table:
+
+```sql
+CREATE TABLE math_user (
+    user_id INTEGER PRIMARY KEY,
+    user_pass VARCHAR(255) NOT NULL,
+    user_score INTEGER DEFAULT 0
+);
+```
+
+## Setup and Installation
+
+### Prerequisites
+
+*   Python 3.9+
+*   PostgreSQL database instance
+
+### Local Development
+
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository_url>
+    cd math-pot
+    ```
+
+2.  **Create and activate a virtual environment:**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Configure Environment Variables:**
+    Create a `.env` file in the root directory and define the following variables:
+    ```env
+    POSTGRES_URL=postgresql://user:password@host:port/dbname
+    SESSION_KEY=your_secure_session_key
+    COOKIE_KEY=your_secure_cookie_key
+    ```
+
+5.  **Initialize the Database:**
+    Ensure the `math_user` table is created in your PostgreSQL instance. You can run the `run_sql.py` script if available or execute the schema manually.
+
+6.  **Run the application:**
+    ```bash
+    uvicorn main:app --reload --host 127.0.0.1 --port 8000
+    ```
+
+7.  **Access the application:**
+    Open a web browser and navigate to `http://127.0.0.1:8000`.
+
+## WebSocket Implementation Details
+
+The core gameplay loop is entirely managed over a single full-duplex WebSocket connection per client. 
+
+1.  **Connection:** Upon connecting to `/ws`, the client is placed in `waiting_queue`.
+2.  **Matchmaking:** Once the queue reaches 2 players, a unique `GameRoom` is instantiated with a UUID.
+3.  **Game Loop:** The server broadcasts the initial math equation `{"a": int, "b": int, "m-id": int}`. Clients submit their answers in JSON format.
+4.  **Verification:** The server validates the `m-id` and the submitted sum. It utilizes a `winner_ws` lock mechanism within the `GameRoom` object to ensure only the first correct submission per round increments the score.
+5.  **Termination:** The match concludes after 15 rounds. The server broadcasts the final results, updates the database via `update_score`, and aggressively cleans up the room instance to prevent memory leaks.
+
+## Deployment
+
+The application is configured for seamless deployment on Render. 
+
+1.  Connect your repository to a new Web Service on Render.
+2.  The provided `render.yaml` Blueprint will automatically configure the Python environment, build command (`pip install -r requirements.txt`), and start command (`uvicorn main:app --host 0.0.0.0 --port $PORT`).
+3.  Ensure the `POSTGRES_URL` environment variable is set in the Render dashboard. `SESSION_KEY` and `COOKIE_KEY` are auto-generated by Render per the blueprint.
