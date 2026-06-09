@@ -280,15 +280,19 @@ async def webs(websocket: WebSocket):
                             if player_id is not None:
                                 update_score(player_id, 15)
 
-                        # Announce overall winner
-                        if len(winners) == 1:
-                            res.append(f"Overall Winner: {winners[0]} 🎉")
-                        else:
-                            res.append("Result: It's a draw! 🤝")
-
-                        msg = " | ".join(res)
-                        for c in room.players:
-                            await c.send_text(msg)
+                        # Send personalized final messages
+                        for i, c in enumerate(room.players):
+                            player_name = f"Player {i+1}"
+                            personal_res = list(res)
+                            if len(winners) == 1:
+                                if player_name in winners:
+                                    personal_res.append("Result: You won! ")
+                                else:
+                                    personal_res.append("Result: You lost! ")
+                            else:
+                                personal_res.append("Result: It's a draw! ")
+                                
+                            await c.send_text(" | ".join(personal_res))
                             
                         # Cleanup room since game is over
                         del rooms[room_id]
